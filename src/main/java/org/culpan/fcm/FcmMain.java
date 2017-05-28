@@ -12,11 +12,11 @@ import javafx.stage.Stage;
 public class FcmMain  extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("sample.fxml"));
+    public void start(Stage primaryStage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("main-form.fxml"));
         primaryStage.setTitle("Fantasy Campaign Manager");
-        primaryStage.setScene(new Scene(root, 1200, 1024));
-        primaryStage.setResizable(false);
+        primaryStage.setScene(new Scene(root, 743, 1160));
+//        primaryStage.setResizable(false);
         primaryStage.show();
     }
 

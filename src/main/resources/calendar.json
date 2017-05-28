@@ -1,0 +1,63 @@
+{
+  "year_len":384,
+  "events":1,
+  "n_months":8,
+  "months":[
+    "Kalia",
+    "Nanoselta",
+    "Marantrum",
+    "Lisaley",
+    "Ysanna",
+    "Fenella",
+    "Keendred",
+    "Quinremiah"
+  ],
+  "month_description": {
+    "Kalia": "spring 1",
+    "Nanoselta": "spring 2",
+    "Marantrum": "summer 1",
+    "Lisaley": "summer 2",
+    "Ysanna": "fall 1",
+    "Fenella": "fall 2",
+    "Keendred": "winter 1",
+    "Quinremiah": "winter 2)"
+  },
+  "month_len":{
+    "Kalia":48,
+    "Nanoselta":48,
+    "Marantrum":48,
+    "Lisaley":48,
+    "Ysanna":48,
+    "Fenella":48,
+    "Keendred":48,
+    "Quinremiah":48
+  },
+  "week_len":7,
+  "weekdays":[
+    "Arumday",
+    "Setnumday",
+    "Rumday",
+    "Mimtar",
+    "Conterday",
+    "Warrowday",
+    "Brakenday"
+  ],
+  "n_moons":2,
+  "moons":[
+    "Stanro",
+    "Fingrimm"
+  ],
+  "lunar_cyc":{
+    "Stanro":17,
+    "Fingrimm":98
+  },
+  "lunar_shf":{
+    "Stanro":0,
+    "Fingrimm":0
+  },
+  "year":1079,
+  "first_day":2,
+  "notes":{
+
+  }
+}
