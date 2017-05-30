@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -20,21 +21,55 @@ public class Controller implements Initializable {
     @FXML
     ScrollPane scrollPaneMainView;
 
+    @FXML
+    Button btnPreviousMonth;
+
+    @FXML
+    Button btnNextMonth;
+
     final static int CellWidth = 100;
 
     final static int CellHeight = 125;
 
     final static int HeaderHeight = 50;
 
+    final static Color BackgroundColor = Color.TRANSPARENT;
+
+    int currentMonth = 0;
+
     @FXML
     protected void btnLoadOnAction(ActionEvent ac) {
         System.out.println("Got event!");
     }
 
+    @FXML
+    protected void nextMonth(ActionEvent ac) {
+        currentMonth++;
+        btnPreviousMonth.setDisable(false);
+        drawMonth(canvasMainView, currentMonth);
+    }
+
+    @FXML
+    protected void previousMonth(ActionEvent ac) {
+        currentMonth--;
+        if (currentMonth == 0) {
+            btnPreviousMonth.setDisable(true);
+        }
+        drawMonth(canvasMainView, currentMonth);
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (canvasMainView != null) {
-            drawMonth(canvasMainView, 0);
+            Calendar c = Calendar.getInstance();
+            int spacing = 5;
+            int numDays = c.getWeekLength(), numWeeks = 8;
+
+            canvasMainView.setHeight((CellHeight + spacing) * numWeeks + HeaderHeight + spacing);
+            canvasMainView.setWidth((CellWidth + spacing) * numDays + 1 + spacing);
+
+            btnPreviousMonth.setDisable(true);
+            drawMonth(canvasMainView, currentMonth);
         } else {
             throw new RuntimeException("main canvas not initialized!");
         }
@@ -44,17 +79,17 @@ public class Controller implements Initializable {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         Calendar c = Calendar.getInstance();
-        int year = c.getYear();
         int spacing = 5;
         int numDays = c.getWeekLength(), numWeeks = 8;
 
-        canvas.setHeight((CellHeight + spacing) * numWeeks + HeaderHeight);
-        canvas.setWidth((CellWidth + spacing) * numDays + 1);
+        gc.setFill(Color.LIGHTGRAY);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setFill(Color.BLACK);
 
         gc.setFont(new Font("Arial", 24));
-        gc.fillText(String.format("Year: %4d", year), 20, 30);
+        gc.fillText(String.format("Year: %4d", c.getStartingYear() + (monthNum / c.getMonthsCount())), 20, 30);
 
-        String msg = String.format("Month: %s", c.getMonths().get(0));
+        String msg = String.format("Month: %s", c.getMonths().get(monthNum % c.getMonthsCount()));
         double twidth = computeTextWidth(gc.getFont(), msg, Double.MAX_VALUE);
         gc.fillText(msg , canvas.getWidth() - (twidth + 25), 30);
 
@@ -83,11 +118,17 @@ public class Controller implements Initializable {
 
         if (cellInMonth) {
             gc.setStroke(Color.GRAY);
-            result += 1;
-            gc.fillText(Integer.toString(result), x + 6, y + 22);
-        } else {
-            gc.setStroke(Color.TRANSPARENT);
+            gc.fillText(Integer.toString(result + 1), x + 6, y + 22);
 
+            int idx = 0;
+            for (Calendar.MoonInfo moonInfo : Calendar.getInstance().getMoons()) {
+                gc.drawImage(Calendar.getInstance().getMoonPhaseImage(moonInfo, dayOfMonth, month), x + 65, y + (36 * idx));
+                idx++;
+            }
+
+            result += 1;
+        } else {
+            gc.setStroke(BackgroundColor);
         }
 
         gc.setLineWidth(2);

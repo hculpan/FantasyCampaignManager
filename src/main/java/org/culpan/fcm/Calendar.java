@@ -1,5 +1,6 @@
 package org.culpan.fcm;
 
+import javafx.scene.image.Image;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -14,9 +15,19 @@ import java.util.List;
  * Created by harryculpan on 5/28/17.
  */
 public class Calendar {
+    public static class MoonInfo {
+        String name;
+        int cycle;
+        int offset;
+    }
+
     static private Calendar calendarInstance;
 
     protected JSONObject jsonObject;
+
+    protected Image [] moonPhases = new Image[8];
+
+    protected List<MoonInfo> moons;
 
     static public Calendar getInstance() {
         if (calendarInstance == null) {
@@ -24,7 +35,17 @@ public class Calendar {
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObject = null;
                 jsonObject = (JSONObject)parser.parse(new InputStreamReader(Calendar.class.getClassLoader().getResourceAsStream("calendar.json")));
+
                 calendarInstance = new Calendar(jsonObject);
+                calendarInstance.moonPhases[0] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon1.png"));
+                calendarInstance.moonPhases[1] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon2.png"));
+                calendarInstance.moonPhases[2] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon3.png"));
+                calendarInstance.moonPhases[3] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon4.png"));
+                calendarInstance.moonPhases[4] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon5.png"));
+                calendarInstance.moonPhases[5] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon6.png"));
+                calendarInstance.moonPhases[6] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon7.png"));
+                calendarInstance.moonPhases[7] = new Image(Calendar.class.getClassLoader().getResourceAsStream("images/moon8.png"));
+
             } catch (IOException | ParseException e) {
                 throw new RuntimeException("Unable to load calendar info", e);
             }
@@ -36,7 +57,7 @@ public class Calendar {
         this.jsonObject = jsonObject;
     }
 
-    public int getYear() {
+    public int getStartingYear() {
         return Integer.parseInt(jsonObject.get("year").toString());
     }
 
@@ -68,7 +89,7 @@ public class Calendar {
     }
 
     public int getDaysInMonth(int month) {
-        String monthName = getMonths().get(month);
+        String monthName = getMonths().get(month % getMonthsCount());
         JSONObject jobject = (JSONObject)jsonObject.get("month_len");
         return Integer.parseInt(jobject.get(monthName).toString());
     }
@@ -77,7 +98,7 @@ public class Calendar {
      * Returns the first weekday of the year, as 0-based int
      * @return
      */
-    public int getFirstWeekdayOfYear() {
+    public int getFirstWeekdayOfStartingYear() {
         return Integer.parseInt(jsonObject.get("first_day").toString());
     }
 
@@ -98,7 +119,7 @@ public class Calendar {
     }
 
     public int getFirstWeekdayOfMonth(int month) {
-        int result = getFirstWeekdayOfYear();
+        int result = getFirstWeekdayOfStartingYear();
 
         for (int i = 0; i < month; i++) {
             result = (result + (getDaysInMonth(i) % getWeekLength())) % getWeekLength();
@@ -118,5 +139,57 @@ public class Calendar {
         }
 
         return -1;
+    }
+
+    public int getMoonCount() {
+        return Integer.parseInt(jsonObject.get("n_moons").toString());
+    }
+
+    public List<MoonInfo> getMoons() {
+        if (moons == null) {
+            moons = new ArrayList<>();
+            JSONArray jsonArray = (JSONArray) jsonObject.get("moons");
+            List<String> result = new ArrayList<>();
+            jsonArray.iterator().forEachRemaining(n -> {
+                MoonInfo moonInfo = new MoonInfo();
+                moonInfo.name = n.toString();
+                moonInfo.cycle = Integer.parseInt(((JSONObject)jsonObject.get("lunar_cyc")).get(moonInfo.name).toString());
+                moonInfo.offset = Integer.parseInt(((JSONObject)jsonObject.get("lunar_shf")).get(moonInfo.name).toString());
+                moons.add(moonInfo);
+            });
+        }
+        return moons;
+    }
+
+    public int daysSinceStart(int dayOfMonth, int month) {
+        int result = 0;
+
+        for (int i = 0; i < month; i++) {
+            result += getDaysInMonth(i);
+        }
+
+        result += dayOfMonth;
+
+        return result;
+    }
+
+    public int getMoonPhase(int moon, int dayOfMonth, int month) {
+        List<MoonInfo> moons = getMoons();
+        return getMoonPhase(moons.get(moon), dayOfMonth, month);
+    }
+
+    public int getMoonPhase(MoonInfo moonInfo, int dayOfMonth, int month) {
+        double interval = moonInfo.cycle / 8.0;
+        int daysSinceStart = daysSinceStart(dayOfMonth, month) + moonInfo.offset + 1;
+        int modResult = (daysSinceStart % moonInfo.cycle);
+        return (int)(modResult / interval);
+    }
+
+    public Image getMoonPhaseImage(MoonInfo moonInfo, int dayOfMonth, int month) {
+        return moonPhases[getMoonPhase(moonInfo, dayOfMonth, month)];
+    }
+
+    public Image getMoonPhaseImage(int moon, int dayOfMonth, int month) {
+        return moonPhases[getMoonPhase(moon, dayOfMonth, month)];
     }
 }

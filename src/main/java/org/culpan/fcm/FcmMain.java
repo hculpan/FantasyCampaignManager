@@ -15,8 +15,7 @@ public class FcmMain  extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("main-form.fxml"));
         primaryStage.setTitle("Fantasy Campaign Manager");
-        primaryStage.setScene(new Scene(root, 743, 1160));
-//        primaryStage.setResizable(false);
+        primaryStage.setScene(new Scene(root, 744, 1203));
         primaryStage.show();
     }
 
